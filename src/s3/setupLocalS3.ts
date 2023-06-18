@@ -10,6 +10,7 @@ export const setupLocalS3 = async (app: Express) => {
     directory: fsPaths.s3UploadedAssets,
     silent: false,
     resetOnClose: true,
+    vhostBuckets: true,
     configureBuckets: [
       {
         name: bucketName,
@@ -21,7 +22,7 @@ export const setupLocalS3 = async (app: Express) => {
 }
 
 const s3rverMiddlewareHelper = (req: Request, res: Response, next: NextFunction) => {
-  console.log(`request url:`, req.url)
+  console.log(`request url:`, req.url, req.headers.host)
   try {
     const url = new URL(req.url, `https://${req.headers.host}`);
     req.url = url.pathname.substring(s3Route.length);
