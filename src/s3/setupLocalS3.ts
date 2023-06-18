@@ -21,6 +21,7 @@ export const setupLocalS3 = async (app: Express) => {
 }
 
 const s3rverMiddlewareHelper = (req: Request, res: Response, next: NextFunction) => {
+  console.log(`request url:`, req.url)
   try {
     const url = new URL(req.url, `https://${req.headers.host}`);
     req.url = url.pathname.substring(s3Route.length);
