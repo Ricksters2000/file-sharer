@@ -11,6 +11,7 @@
     "build-dev-client": "tsc && vite build --config ./build/client.config.dev.ts",
     "build-dev-server-once": "tsc && vite build --watch false --config ./build/server.config.dev.ts",
     "build-dev-client-once": "tsc && vite build --watch false --config ./build/client.config.dev.ts",
+    "build-and-start": "npm run build-dev-server-once && npm run build-dev-client-once && npm run start",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
