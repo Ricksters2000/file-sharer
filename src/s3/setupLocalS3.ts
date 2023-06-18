@@ -10,7 +10,7 @@ export const setupLocalS3 = async (app: Express) => {
     directory: fsPaths.s3UploadedAssets,
     silent: false,
     resetOnClose: true,
-    vhostBuckets: true,
+    vhostBuckets: false,
     configureBuckets: [
       {
         name: bucketName,
