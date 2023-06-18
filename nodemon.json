@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "./.dev/server.dev.js"
+  ],
+  "exec": "node ./.dev/server.dev.js",
+  "ext": "js"
+}

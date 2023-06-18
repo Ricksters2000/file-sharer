@@ -1,0 +1,40 @@
+module.exports = {
+  env: {browser: true, es2020: true},
+  extends: [
+    `eslint:recommended`,
+    `plugin:@typescript-eslint/recommended`,
+    `plugin:react-hooks/recommended`,
+    `plugin:react/recommended`,
+    'plugin:import/typescript',
+  ],
+  parser: `@typescript-eslint/parser`,
+  parserOptions: { 
+    ecmaVersion: `latest`, 
+    sourceType: `module`
+  },
+  plugins: [
+    `react-refresh`,
+    `react`,
+    `import`,
+  ],
+  rules: {
+    'react-refresh/only-export-components': `warn`,
+    "keyword-spacing": `off`,
+    '@typescript-eslint/keyword-spacing': `off`,
+    '@typescript-eslint/no-shadow': `warn`,
+    '@typescript-eslint/ban-ts-comment': `warn`,
+    'react/no-children-prop': `off`,
+    'react/prop-types': `warn`,
+    '@typescript-eslint/no-empty-interface': `off`,
+    '@typescript-eslint/no-inferrable-types': `off`,
+    'no-unused-vars': `off`,
+    '@typescript-eslint/no-unused-vars': [`warn`],
+    'object-curly-spacing': [`error`, `never`, {"arraysInObjects": false, objectsInObjects: false}],
+    "import/prefer-default-export": `off`,
+    'quotes': [`error`, `backtick`],
+    '@typescript-eslint/quotes': `off`,
+    '@typescript-eslint/prefer-literal-enum-member': `error`,
+    'no-use-before-define': `off`,
+    "@typescript-eslint/object-curly-spacing": `off`,
+  },
+}
