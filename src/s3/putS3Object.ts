@@ -1,12 +1,13 @@
 import zlib from "zlib";
 import util from 'util';
 import { bucketName, s3Client } from "./s3Client";
-import { UploadPartCommandInput, UploadPartCommandOutput } from "@aws-sdk/client-s3";
+import { CompletedMultipartUpload, UploadPartCommandInput, UploadPartCommandOutput } from "@aws-sdk/client-s3";
 import VolatileFile from "formidable/VolatileFile";
 import { PassThrough, Writable } from "stream";
 
 // gb * mb * kb * bytes = 5GB
 const maxSizePerUpload = 5 * 1000 * 1024 * 1024;
+const fiveMgbs = 500 * 1024 * 1024;
 
 export const putS3Object = (file?: VolatileFile): Writable => {
   // const compressedData = zlib.gzipSync(buffer);
@@ -59,5 +60,68 @@ export const multipartUploadS3Object = async (buffer: Buffer, key: string) => {
     })
   } catch (err) {
     console.log(`Unexpected Error uploading large file`, err)
+  }
+}
+
+export const multipartUploadS3ObjectSync = (file?: VolatileFile) => {
+  try {
+    const pass = new PassThrough();
+    console.log(`receieved file:`, file);
+    // @ts-ignore
+    const key: string = file.newFilename
+    const multipartUploadPromise = s3Client.createMultipartUpload({
+      Bucket: bucketName,
+      Key: key,
+    })
+    multipartUploadPromise.then(async multipartUpload => {
+      let chunks: Array<Buffer> = [];
+      const uploadId = multipartUpload.UploadId;
+      const uploadedParts: Array<UploadPartCommandOutput> = [];
+      let currentSize = 0;
+      let currentPart = 1;
+      pass.on(`data`, async (chunk: Buffer) => {
+        chunks.push(chunk);
+        currentSize += chunk.byteLength;
+        console.log(`received chunk, current size:`, currentSize)
+        if (currentSize >= fiveMgbs) {
+          pass.pause();
+          console.log(`paused stream`);
+          const buffer = Buffer.concat(chunks);
+          const uploadPartProps: UploadPartCommandInput = {
+            Bucket: bucketName,
+            Key: key,
+            UploadId: uploadId,
+            Body: buffer,
+            PartNumber: currentPart,
+          }
+          const uploadPartOutput = await s3Client.uploadPart(uploadPartProps);
+          uploadedParts.push(uploadPartOutput);
+          console.log(`uploaded part ${currentPart} with size:`, currentSize);
+          currentPart++;
+          currentSize = 0;
+          chunks = [];
+          setTimeout(() => pass.resume(), 1000)
+          // pass.resume();
+        }
+      })
+      pass.on(`finish`, async () => {
+        const completeMultipartOutput = await s3Client.completeMultipartUpload({
+          Bucket: bucketName,
+          Key: key,
+          UploadId: uploadId,
+          MultipartUpload: {
+            Parts: uploadedParts.map((uploadedPart, i) => ({
+              ETag: uploadedPart.ETag,
+              PartNumber: i + 1,
+            }))
+          }
+        })
+        console.log(`finished uploading parts:`, completeMultipartOutput)
+      })
+    })
+    return pass;
+  } catch (err) {
+    console.log(`Unexpected Error uploading large file`, err)
+    throw new Error(`${err}`);
   }
 }

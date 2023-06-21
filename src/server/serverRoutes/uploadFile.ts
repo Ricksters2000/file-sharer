@@ -1,29 +1,50 @@
 import { Request, Response } from "express"
-import formidable from 'formidable';
+import formidable, { EmitData } from 'formidable';
+import { MultipartParser } from "formidable/parsers";
 import { fsPaths } from "../../fsPaths";
-import { putS3Object } from "../../s3/putS3Object";
+import { multipartUploadS3ObjectSync, putS3Object } from "../../s3/putS3Object";
 import VolatileFile from "formidable/VolatileFile";
-import { PassThrough } from "stream";
+import { PassThrough, Transform } from "stream";
+import customPlugin from "./formidablePlugin";
 
 export const handleUploadFile = async (req: Request, res: Response) => {
   const form = formidable({
+    // multiples: true,
     maxFileSize: Infinity,
+    maxTotalFileSize: Infinity,
     uploadDir: fsPaths.tempUploadedAssets,
-    fileWriteStreamHandler: putS3Object,
+    fileWriteStreamHandler: multipartUploadS3ObjectSync,
   });
-  form.parse(req, async (err, fields, {files}) => {
+  // form.use(customPlugin)
+  form.parse(req, async (err, fields, formidableFile) => {
     if (err) {
+      console.log(`err:`, err)
       res.status(404).send(`Error uploading file: ${err}`);
     }
+    const {files} = formidableFile;
+    // console.log(`formidable:`, formidableFile)
     console.log(`fields:`, fields);
-    console.log(`files:`, files);
+    // console.log(`files:`, files);
     if (Array.isArray(files)) {
       
     } else {
-      const key = files.originalFilename ?? files.newFilename;
-      res.send(`/api/download/${files.newFilename}`);
+      // const key = files.originalFilename ?? files.newFilename;
+      // res.send(`/api/download/${files.newFilename}`);
+      // res.send(`/api/download/`);
     }
   })
+  // form.on(`data`, (data) => {
+  //   console.log(`on data:`, data)
+  // })
+  // form.on(`file`, (name, file) => {
+  //   console.log(`on file:`, name, file)
+  // })
+  // form.onPart = (part) => {
+  //   console.log(`part:`, part)
+  //   part.on(`data`, (data) => {
+  //     console.log(`part data:`, data)
+  //   })
+  // }
   form.on(`progress`, (bytesReceived, bytesExpected) => {
     console.log(`progress on file upload: ${bytesReceived}/${bytesExpected}`)
   })

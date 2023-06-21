@@ -14,7 +14,7 @@ export const Upload: React.FC<unknown> = () => {
     console.log(`sending data`)
     const res = await fetch(`/api/upload`, {
       method: `post`,
-      // headers: {'content-type': `multipart/form-data boundary`},
+      // headers: {'content-type': `multipart/form-data`},
       body: formData,
     });
     const data = await res.text();
