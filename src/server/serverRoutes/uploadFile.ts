@@ -5,7 +5,6 @@ import { fsPaths } from "../../fsPaths";
 import { multipartUploadS3ObjectSync, putS3Object } from "../../s3/putS3Object";
 import VolatileFile from "formidable/VolatileFile";
 import { PassThrough, Transform } from "stream";
-import customPlugin from "./formidablePlugin";
 
 export const handleUploadFile = async (req: Request, res: Response) => {
   const form = formidable({
