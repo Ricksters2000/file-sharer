@@ -7,7 +7,7 @@ import { PassThrough, Writable } from "stream";
 
 // gb * mb * kb * bytes = 5GB
 const maxSizePerUpload = 5 * 1000 * 1024 * 1024;
-const fiveMgbs = 500 * 1024 * 1024;
+const fiveMgbs = 200 * 1024 * 1024;
 
 export const putS3Object = (file?: VolatileFile): Writable => {
   // const compressedData = zlib.gzipSync(buffer);
