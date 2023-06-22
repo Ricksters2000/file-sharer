@@ -80,10 +80,10 @@ export const multipartUploadS3ObjectSync = (file?: VolatileFile) => {
       let currentSize = 0;
       let currentPart = 1;
       pass.on(`data`, async (chunk: Buffer) => {
-        console.log(`memory used:`, process.memoryUsage().heapUsed / 1024 / 1024)
+        // console.log(`memory used:`, process.memoryUsage().heapUsed / 1024 / 1024)
         chunks.push(chunk);
         currentSize += chunk.byteLength;
-        console.log(`received chunk, current size:`, currentSize)
+        // console.log(`received chunk, current size:`, currentSize)
         if (currentSize >= fiveMgbs) {
           pass.pause();
           console.log(`paused stream`);
@@ -101,9 +101,8 @@ export const multipartUploadS3ObjectSync = (file?: VolatileFile) => {
           currentPart++;
           currentSize = 0;
           chunks = [];
-          console.log(`memory for next part:`, process.memoryUsage().heapUsed / 1024 / 1024)
-          // if (global.gc) global.gc();
-          setTimeout(() => pass.resume(), 1000)
+          if (global.gc) global.gc();
+          setTimeout(() => pass.resume(), 3000)
           // pass.resume();
         }
       })

@@ -2,6 +2,6 @@
   "watch": [
     "./.dev/server.dev.js"
   ],
-  "exec": "node ./.dev/server.dev.js",
+  "exec": "node --expose-gc ./.dev/server.dev.js",
   "ext": "js"
 }
