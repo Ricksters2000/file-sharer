@@ -7,6 +7,7 @@ import VolatileFile from "formidable/VolatileFile";
 import { PassThrough, Transform } from "stream";
 
 export const handleUploadFile = async (req: Request, res: Response) => {
+  console.log(`got request to upload file`)
   const form = formidable({
     // multiples: true,
     maxFileSize: Infinity,
@@ -15,23 +16,24 @@ export const handleUploadFile = async (req: Request, res: Response) => {
     fileWriteStreamHandler: multipartUploadS3ObjectSync,
   });
   // form.use(customPlugin)
-  form.parse(req, async (err, fields, formidableFile) => {
-    if (err) {
-      console.log(`err:`, err)
-      res.status(404).send(`Error uploading file: ${err}`);
-    }
-    const {files} = formidableFile;
-    // console.log(`formidable:`, formidableFile)
-    console.log(`fields:`, fields);
-    // console.log(`files:`, files);
-    if (Array.isArray(files)) {
+  await form.parse(req);
+  // form.parse(req, async (err, fields, formidableFile) => {
+  //   if (err) {
+  //     console.log(`err:`, err)
+  //     res.status(404).send(`Error uploading file: ${err}`);
+  //   }
+  //   const {files} = formidableFile;
+  //   // console.log(`formidable:`, formidableFile)
+  //   console.log(`fields:`, fields);
+  //   // console.log(`files:`, files);
+  //   if (Array.isArray(files)) {
       
-    } else {
-      // const key = files.originalFilename ?? files.newFilename;
-      // res.send(`/api/download/${files.newFilename}`);
-      // res.send(`/api/download/`);
-    }
-  })
+  //   } else {
+  //     // const key = files.originalFilename ?? files.newFilename;
+  //     // res.send(`/api/download/${files.newFilename}`);
+  //     // res.send(`/api/download/`);
+  //   }
+  // })
   // form.on(`data`, (data) => {
   //   console.log(`on data:`, data)
   // })

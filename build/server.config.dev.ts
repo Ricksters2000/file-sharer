@@ -3,18 +3,20 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { vitePlugins } from './utils/vitePlugins'
 // https://vitejs.dev/config/
-export default defineConfig(() => 
+export default defineConfig(({command, mode}) => 
 {
+  const isProduction = mode === `production`;
   return {
-    mode: `development`,
+    mode,
     plugins: vitePlugins,
     build: {
       outDir: path.resolve(__dirname, `../.dev`),
-      watch: {
+      watch: isProduction ? null : {
         exclude: `node_modules/**`,
         include: `src/**`,
       },
-      sourcemap: true,
+      sourcemap: !isProduction,
+      minify: isProduction,
       manifest: true,
       ssr: true,
       rollupOptions: {
