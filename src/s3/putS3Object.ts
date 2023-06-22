@@ -7,7 +7,7 @@ import { PassThrough, Writable } from "stream";
 
 // gb * mb * kb * bytes = 5GB
 const maxSizePerUpload = 5 * 1000 * 1024 * 1024;
-const fiveMgbs = 200 * 1024 * 1024;
+const fiveMgbs = 100 * 1024 * 1024;
 
 export const putS3Object = (file?: VolatileFile): Writable => {
   // const compressedData = zlib.gzipSync(buffer);
@@ -80,6 +80,7 @@ export const multipartUploadS3ObjectSync = (file?: VolatileFile) => {
       let currentSize = 0;
       let currentPart = 1;
       pass.on(`data`, async (chunk: Buffer) => {
+        console.log(`memory used:`, process.memoryUsage().heapUsed / 1024 / 1024)
         chunks.push(chunk);
         currentSize += chunk.byteLength;
         console.log(`received chunk, current size:`, currentSize)
@@ -100,6 +101,8 @@ export const multipartUploadS3ObjectSync = (file?: VolatileFile) => {
           currentPart++;
           currentSize = 0;
           chunks = [];
+          console.log(`memory for next part:`, process.memoryUsage().heapUsed / 1024 / 1024)
+          // if (global.gc) global.gc();
           setTimeout(() => pass.resume(), 1000)
           // pass.resume();
         }

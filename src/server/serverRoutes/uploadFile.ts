@@ -45,6 +45,6 @@ export const handleUploadFile = async (req: Request, res: Response) => {
   //   })
   // }
   form.on(`progress`, (bytesReceived, bytesExpected) => {
-    console.log(`progress on file upload: ${bytesReceived}/${bytesExpected}`)
+    // console.log(`progress on file upload: ${bytesReceived}/${bytesExpected}`)
   })
 }
