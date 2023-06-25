@@ -1,26 +1,41 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    // "emitDecoratorMetadata": true,
-    "target": "ES5",
-    "module": "CommonJS",
-    "jsx": "react-jsx",
-    // "noEmit": false,
-    "moduleResolution": "node",
-    "lib": [
-      "dom",
-      "es2015",
-      "es2017",
-      "es2019"
-    ],
-    "baseUrl": "."
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": ["node", "vite/client"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* Bundler mode */
+    "moduleResolution": "Node",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "jsx": "react",
+    "jsxImportSource": "@emotion/react",
+
+    /* Linting */
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "forceConsistentCasingInFileNames": true,
   },
-  "exclude": [
-    "dist",
-    "out"
-  ],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-  ]
+    "./src/viteUtils/vite-env.d.ts",
+    "./src/viteUtils/globalTypes.d.ts",
+    "*.d.ts",
+    "*.ts",
+    "*.tsx",
+  ],
+  "exclude": ["node_modules"],
 }

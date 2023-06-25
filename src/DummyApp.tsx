@@ -1,8 +1,8 @@
 import React from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+// import reactLogo from './assets/react.svg'
+// import viteLogo from './assets/vite.svg'
 import styled from '@emotion/styled'
-import './App.css'
+// import './App.css'
 
 const DummyApp: React.FC<any> = () => {
   const [count, setCount] = React.useState(0);
@@ -11,10 +11,10 @@ const DummyApp: React.FC<any> = () => {
     <>
       <div>
         <a href="https://vitejs.dev" target="_blank">
-          <Logo src={viteLogo} alt="Vite logo" />
+          <Logo src={`viteLogo`} alt="Vite logo" />
         </a>
         <a href="https://react.dev" target="_blank">
-          <ReactLogo src={reactLogo} alt="React logo" />
+          <ReactLogo src={`reactLogo`} alt="React logo" />
         </a>
       </div>
       <h1>Vite + React</h1>

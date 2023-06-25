@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import formidable, { EmitData } from 'formidable';
 import { MultipartParser } from "formidable/parsers";
 import { fsPaths } from "../../fsPaths";
-import { multipartUploadS3ObjectSync, putS3Object } from "../../s3/putS3Object";
+import { multipartUploadS3ObjectSync, putS3Object } from "../../assetManagement/s3/putS3Object";
 import VolatileFile from "formidable/VolatileFile";
 import { PassThrough, Transform } from "stream";
 

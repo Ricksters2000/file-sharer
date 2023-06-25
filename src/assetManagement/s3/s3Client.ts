@@ -1,5 +1,5 @@
 import { S3 } from "@aws-sdk/client-s3";
-import { env } from "../server/serverEnv";
+import { env } from "../../server/serverEnv";
 
 const accessKey = `S3RVER`;
 

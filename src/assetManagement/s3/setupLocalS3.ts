@@ -1,6 +1,6 @@
 import { Express, Request, Response, NextFunction } from "express"
 import S3rver from 's3rver';
-import { fsPaths } from "../fsPaths";
+import { fsPaths } from "../../fsPaths";
 import { bucketName } from "./s3Client";
 
 export const s3Route = `/s3`;

@@ -1,7 +1,10 @@
 {
   "watch": [
-    "./.dev/server.dev.js"
+    "./src"
   ],
-  "exec": "node --expose-gc ./.dev/server.dev.js",
-  "ext": "js"
+  "ignore": [
+    "./src/client/*"
+  ],
+  "exec": "cross-env NODE_PATH=./src node --inspect -r ./node_modules/.bin/ts-node-esm ./src/index.ts",
+  "ext": "ts"
 }

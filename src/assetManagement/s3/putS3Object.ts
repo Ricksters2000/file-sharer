@@ -1,5 +1,5 @@
-import zlib from "zlib";
-import util from 'util';
+import * as zlib from "zlib";
+import * as util from 'util';
 import { bucketName, s3Client } from "./s3Client";
 import { CompletedMultipartUpload, UploadPartCommandInput, UploadPartCommandOutput } from "@aws-sdk/client-s3";
 import VolatileFile from "formidable/VolatileFile";

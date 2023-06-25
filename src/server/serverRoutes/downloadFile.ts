@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getS3Object } from "../../s3/getS3Object";
+import { getS3Object } from "../../assetManagement/s3/getS3Object";
 
 export const downloadFile = async  (req: Request, res: Response) => {
   console.log(`params:`, req.params, req.query)

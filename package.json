@@ -3,11 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=18.16.0"
+  },
   "scripts": {
     "setup": "nvm use 18.16.0",
-    "dev": "nodemon",
+    "dev": "cross-env NODE_ENV=development ts-node --project tsconfig.server.json ./src/server/index.ts",
     "start": "node ./.dev/server.dev.js",
-    "build-dev-server": "tsc && vite build --mode development --config ./build/server.config.dev.ts",
+    "build-dev-server": "cross-env NODE_ENV=development tsc && vite build --mode development --config ./build/server.config.dev.ts",
     "build-dev-client": "tsc && vite build --mode development --config ./build/client.config.dev.ts",
     "build-dev-server-once": "tsc && vite build --mode production --watch false --config ./build/server.config.dev.ts",
     "build-dev-client-once": "tsc && vite build --watch false --config ./build/client.config.dev.ts",
@@ -43,11 +46,13 @@
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "@vitejs/plugin-react": "^4.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
     "nodemon": "^2.0.22",
     "rollup": "^3.23.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.2",
     "vite": "^4.3.2"
   }
