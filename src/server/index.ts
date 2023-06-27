@@ -1,9 +1,8 @@
-// import 'vite/modulepreload-polyfill';
 import '../viteUtils/modulePolyfill';
 import express from 'express';
 import fs from 'fs';
 import {handleRouting} from './handleRouting';
-import {createServer as createViteServer} from 'vite';
+import {ViteDevServer, createServer as createViteServer} from 'vite';
 import { setupLocalS3 } from '../assetManagement/s3/setupLocalS3';
 import { handleUploadFile } from './serverRoutes/uploadFile';
 import { fsPaths } from '../fsPaths';
@@ -11,6 +10,8 @@ import { downloadFile } from './serverRoutes/downloadFile';
 import path from 'path';
 import { bucketName } from '../assetManagement/s3/s3Client';
 import { env } from './serverEnv';
+import {isProduction} from '../utils/isProduction';
+import serveStatic from 'serve-static';
 
 if (!fs.existsSync(fsPaths.tempUploadedAssets)) {
   fs.mkdirSync(fsPaths.tempUploadedAssets, {recursive: true});
@@ -42,14 +43,21 @@ const createServer = async () => {
   // }, 1000)
 
   const app = express();
-
-  const viteServer = await createViteServer({
-    server: {middlewareMode: true},
-    appType: `custom`,
-    mode: `development`,
-    configFile: fsPaths.clientConfigFile,
-  });
-  app.use(viteServer.middlewares);
+  let viteServer: ViteDevServer | undefined
+  if (!isProduction) {
+    viteServer = await createViteServer({
+      server: {middlewareMode: true},
+      appType: `custom`,
+      mode: `development`,
+      configFile: fsPaths.clientConfigFile,
+    });
+    app.use(viteServer.middlewares);
+  } else {
+    app.use(serveStatic(fsPaths.clientDistFolder, {
+      index: false,
+    }))
+  }
+  
   await setupLocalS3(app);
 
   app.post(`/api/upload`, handleUploadFile)

@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { App } from '../App.tsx'
-import { bodyId } from '../elementIds.ts'
+import { App } from '../pages/home/App'
+import { bodyId } from '../elementIds'
 
 ReactDOM.hydrateRoot(document.getElementById(bodyId) as HTMLElement,
   <React.StrictMode>

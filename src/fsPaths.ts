@@ -1,17 +1,24 @@
 import { fileURLToPath } from "url";
 import path from 'path'
+import {isProduction} from "./utils/isProduction";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+const root = process.cwd();
 
-const uploadedAssetsFolder = path.resolve(__dirname, `../.uploaded-assets/`);
+const uploadedAssetsFolder = path.resolve(root, `./.uploaded-assets/`);
 
 export const fsPaths = {
   uploadedAssetsFolder,
   s3UploadedAssets: path.resolve(uploadedAssetsFolder, `./s3`),
   fsUploadedAssets: path.resolve(uploadedAssetsFolder, `./fs`),
   tempUploadedAssets: path.resolve(uploadedAssetsFolder, `./tmp`),
-  clientConfigFile: path.resolve(__dirname, `../build/client.config.dev.ts`),
-  envFile: path.resolve(__dirname, `../.env`),
-  templateHtmlFile: path.resolve(__dirname, `../src/index.html`)
+  clientConfigFile: path.resolve(root, `./build/client.config.ts`),
+  envFile: path.resolve(root, `./.env`),
+  templateHtmlFile: {
+    dev: path.resolve(root, `./index.html`),
+    prod: path.resolve(root, `./dist/client/index.html`),
+  },
+  devScriptsHtmlFile: path.resolve(root, `./src/devScripts.html`),
+  serverSsrEntryFile: '/src/server/serverSsrEntry.tsx',
+  clientDistFolder: path.resolve(root, `./dist/client`)
 }

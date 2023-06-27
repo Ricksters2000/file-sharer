@@ -4,21 +4,18 @@ import react from '@vitejs/plugin-react'
 import { vitePlugins } from './utils/vitePlugins'
 // https://vitejs.dev/config/
 export default defineConfig({
-  mode: `development`,
   plugins: vitePlugins,
   build: {
     target: `esnext`,
-    outDir: path.resolve(__dirname, `../public`),
+    outDir: path.resolve(__dirname, `../dist/client`),
     emptyOutDir: false,
-    watch: {
-      exclude: `node_modules/**`,
-      include: `src/**`,
-    },
-    sourcemap: true,
+    watch: null,
+    sourcemap: false,
     manifest: true,
+    minify: `esbuild`,
     rollupOptions: {
       input: {
-        'main': path.resolve(__dirname, `../src/client/index.tsx`),
+        'main': path.resolve(__dirname, `../index.html`),
       },
       output: {
         entryFileNames: `[name].js`
