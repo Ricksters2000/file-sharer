@@ -1,7 +1,7 @@
 import { writeFileSync } from "fs";
 import { bucketName, s3Client } from "./s3Client"
 
-export const getS3Object = async (filename: string, fileId?: string) => {
+export const getS3Object = async (filename: string) => {
   const getObjectOutput = await s3Client.getObject({
     Bucket: bucketName,
     Key: `${filename}`,

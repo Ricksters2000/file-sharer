@@ -4,6 +4,7 @@ import { bucketName, s3Client } from "./s3Client";
 import { CompletedMultipartUpload, UploadPartCommandInput, UploadPartCommandOutput } from "@aws-sdk/client-s3";
 import VolatileFile from "formidable/VolatileFile";
 import { PassThrough, Writable } from "stream";
+import {VolatileFileAndData} from "../types";
 
 // gb * mb * kb * bytes = 5GB
 const maxSizePerUpload = 5 * 1000 * 1024 * 1024;
@@ -63,11 +64,11 @@ export const multipartUploadS3Object = async (buffer: Buffer, key: string) => {
   }
 }
 
-export const multipartUploadS3ObjectSync = (file?: VolatileFile) => {
+export const multipartUploadS3ObjectSync = (file?: VolatileFileAndData) => {
   try {
     const pass = new PassThrough();
+    if (!file) return pass;
     console.log(`receieved file:`, file);
-    // @ts-ignore
     const key: string = file.newFilename
     const multipartUploadPromise = s3Client.createMultipartUpload({
       Bucket: bucketName,

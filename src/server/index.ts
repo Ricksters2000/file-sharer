@@ -4,14 +4,15 @@ import fs from 'fs';
 import {handleRouting} from './handleRouting';
 import {ViteDevServer, createServer as createViteServer} from 'vite';
 import { setupLocalS3 } from '../assetManagement/s3/setupLocalS3';
-import { handleUploadFile } from './serverRoutes/uploadFile';
+import { handleUploadFile } from './serverRoutes/handleUploadFile';
 import { fsPaths } from '../fsPaths';
-import { downloadFile } from './serverRoutes/downloadFile';
+import { downloadFile } from './serverRoutes/handleDownloadFile';
 import path from 'path';
 import { bucketName } from '../assetManagement/s3/s3Client';
 import { env } from './serverEnv';
 import {isProduction} from '../utils/isProduction';
 import serveStatic from 'serve-static';
+import {UploadType, uploadType} from '../assetManagement/uploadFileSettings';
 
 if (!fs.existsSync(fsPaths.tempUploadedAssets)) {
   fs.mkdirSync(fsPaths.tempUploadedAssets, {recursive: true});
@@ -25,22 +26,26 @@ if (!fs.existsSync(fsPaths.s3UploadedAssets)) {
   fs.mkdirSync(path.resolve(fsPaths.s3UploadedAssets, `./${bucketName}`));
 }
 
+if (!fs.existsSync(fsPaths.fsUploadedAssets)) {
+  fs.mkdirSync(fsPaths.fsUploadedAssets);
+}
+
 const createServer = async () => {
-  setInterval(() => {
-    // console.log(`current memory used:`, process.memoryUsage().heapUsed / 1024 / 1024)
-    const memoryUsage = process.memoryUsage()
-    const divide = 1000000
-    const total = memoryUsage.arrayBuffers + memoryUsage.external + memoryUsage.heapTotal + memoryUsage.heapUsed + memoryUsage.rss;
-    // console.log(`current memory used:`, process.memoryUsage().heapUsed / 1024 / 1024)
-    console.log(`full stats:`, {
-      rss: memoryUsage.rss / divide,
-      heapTotal: memoryUsage.heapTotal / divide,
-      headUsed: memoryUsage.heapUsed / divide,
-      external: memoryUsage.external / divide,
-      arrayBuffers: memoryUsage.arrayBuffers / divide,
-    })
-    console.log(`total:`, total / divide)
-  }, 1000)
+  // setInterval(() => {
+  //   // console.log(`current memory used:`, process.memoryUsage().heapUsed / 1024 / 1024)
+  //   const memoryUsage = process.memoryUsage()
+  //   const divide = 1000000
+  //   const total = memoryUsage.arrayBuffers + memoryUsage.external + memoryUsage.heapTotal + memoryUsage.heapUsed + memoryUsage.rss;
+  //   // console.log(`current memory used:`, process.memoryUsage().heapUsed / 1024 / 1024)
+  //   console.log(`full stats:`, {
+  //     rss: memoryUsage.rss / divide,
+  //     heapTotal: memoryUsage.heapTotal / divide,
+  //     headUsed: memoryUsage.heapUsed / divide,
+  //     external: memoryUsage.external / divide,
+  //     arrayBuffers: memoryUsage.arrayBuffers / divide,
+  //   })
+  //   console.log(`total:`, total / divide)
+  // }, 1000)
 
   const app = express();
   let viteServer: ViteDevServer | undefined
@@ -58,7 +63,9 @@ const createServer = async () => {
     }))
   }
   
-  await setupLocalS3(app);
+  if (uploadType === UploadType.s3) {
+    await setupLocalS3(app);
+  }
 
   app.post(`/api/upload`, handleUploadFile)
   app.get(`/api/download/:filename`, downloadFile)
