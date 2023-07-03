@@ -6,4 +6,4 @@ export enum UploadType {
 export const uploadType: UploadType = UploadType.fs;
 
 /** If file size exceeds this amount then upload file in parts */
-export const maxFileSize = 50 * 1024 * 1024;
+export const maxFileSize = 100 * 1024 * 1024;

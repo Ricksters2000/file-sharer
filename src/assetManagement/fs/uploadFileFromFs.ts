@@ -1,15 +1,14 @@
 import * as fs from 'fs';
 import path from 'path';
-import {UploadPartCommandInput} from "@aws-sdk/client-s3";
 import {PassThrough, Writable} from "stream";
-import {bucketName, s3Client} from "../s3/s3Client";
-import {fsPaths} from '../../fsPaths';
-import {VolatileFileAndData} from '../types';
+import {FileMetadata, VolatileFileAndData} from '../types';
 import {maxFileSize} from '../uploadFileSettings';
+import {getFileMetadataPath, getFilePartPath, getUploadedFolderPath} from './getFilePathHelpers';
 
 export const uploadFileFromFs = (file: VolatileFileAndData): Writable => {
   const pass = new PassThrough();
-  const uploadedPath = path.resolve(fsPaths.fsUploadedAssets, `./${file.newFilename}`)
+  const key = file.newFilename
+  const uploadedPath = getUploadedFolderPath(key)
   fs.mkdirSync(uploadedPath)
   let chunks: Array<Buffer> = [];
   let currentSize = 0;
@@ -21,14 +20,14 @@ export const uploadFileFromFs = (file: VolatileFileAndData): Writable => {
       pass.pause();
       console.log(`paused stream`);
       const buffer = Buffer.concat(chunks);
-      fs.writeFileSync(path.resolve(uploadedPath, `./part-${currentPart}`), buffer)
+      fs.writeFileSync(getFilePartPath(key, currentPart), buffer)
       console.log(`uploaded part ${currentPart} with size:`, currentSize);
       currentPart++;
       currentSize = 0;
       chunks = [];
       if (global.gc) global.gc();
-      setTimeout(() => pass.resume(), 2000)
-      // pass.resume();
+      // setTimeout(() => pass.resume(), 2000)
+      pass.resume();
     }
   })
   pass.on(`finish`, async () => {
@@ -36,6 +35,13 @@ export const uploadFileFromFs = (file: VolatileFileAndData): Writable => {
       const buffer = Buffer.concat(chunks);
       fs.writeFileSync(path.resolve(uploadedPath, `./part-${currentPart}`), buffer)
     }
+    const fileMetadata: FileMetadata = {
+      size: file.size,
+      originalFilename: file.originalFilename,
+      mimetype: file.mimetype,
+      parts: currentPart,
+    }
+    fs.writeFileSync(getFileMetadataPath(key), JSON.stringify(fileMetadata))
   })
   return pass;
 }

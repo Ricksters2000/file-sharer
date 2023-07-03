@@ -6,7 +6,7 @@ import {ViteDevServer, createServer as createViteServer} from 'vite';
 import { setupLocalS3 } from '../assetManagement/s3/setupLocalS3';
 import { handleUploadFile } from './serverRoutes/handleUploadFile';
 import { fsPaths } from '../fsPaths';
-import { downloadFile } from './serverRoutes/handleDownloadFile';
+import { handleDownloadFile } from './serverRoutes/handleDownloadFile';
 import path from 'path';
 import { bucketName } from '../assetManagement/s3/s3Client';
 import { env } from './serverEnv';
@@ -68,7 +68,7 @@ const createServer = async () => {
   }
 
   app.post(`/api/upload`, handleUploadFile)
-  app.get(`/api/download/:filename`, downloadFile)
+  app.get(`/api/download/:filename`, handleDownloadFile)
 
   app.get(`*`, handleRouting(viteServer))
 
