@@ -69,6 +69,17 @@ const createServer = async () => {
 
   app.post(`/api/upload`, handleUploadFile)
   app.get(`/api/download/:filename`, handleDownloadFile)
+  app.get(`/api/progress`, async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.flushHeaders()
+    for (let i = 0; i < 100; i++) {
+      // res.write("event: message\n");
+      res.write(`data: ${JSON.stringify({num: i})}\n\n`)
+    }
+    console.log(`ended thing`)
+    res.end()
+  })
 
   app.get(`*`, handleRouting(viteServer))
 

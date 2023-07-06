@@ -7,6 +7,7 @@ type OnDropCallback = <T extends File>(acceptedFiles: T[], fileRejections: FileR
 
 export const Upload: React.FC<unknown> = () => {
   const [downloadLink, setDownloadLink] = React.useState(``)
+  const [uploadProgress, setUploadProgress] = React.useState(``)
   const onDrop = useCallback<OnDropCallback>(async (acceptedFiles) =>  {
     console.log(acceptedFiles)
     const formData = new FormData();
@@ -17,6 +18,16 @@ export const Upload: React.FC<unknown> = () => {
       // headers: {'content-type': `multipart/form-data`},
       body: formData,
     });
+    const progressEvent = new EventSource(`/api/progress`)
+    console.log(`created progress event:`, progressEvent)
+    progressEvent.onmessage = (event) => {
+      console.log(`message:`, event.data)
+      const data = JSON.parse(event.data)
+      if (data.num >= 99) {
+        console.log(`done`)
+        progressEvent.close()
+      }
+    }
     const data = await res.text();
     setDownloadLink(data);
   }, [])
