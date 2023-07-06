@@ -3,8 +3,9 @@ import formidable, { EmitData } from 'formidable';
 import { MultipartParser } from "formidable/parsers";
 import { fsPaths } from "../../fsPaths";
 import {uploadFile} from "../../assetManagement/uploadFile";
+import {UploadProgressManager} from "../../assetManagement/UploadProgressManager";
 
-export const handleUploadFile = async (req: Request, res: Response) => {
+export const handleUploadFile = (uploadProgressManager: UploadProgressManager) => async (req: Request, res: Response) => {
   console.log(`got request to upload file`)
   const form = formidable({
     // multiples: true,
@@ -12,7 +13,7 @@ export const handleUploadFile = async (req: Request, res: Response) => {
     maxTotalFileSize: Infinity,
     uploadDir: fsPaths.tempUploadedAssets,
     // @ts-ignore
-    fileWriteStreamHandler: uploadFile,
+    fileWriteStreamHandler: uploadFile(uploadProgressManager, this),
   });
   form.parse(req, async (err, fields, formidableFile) => {
     if (err) {

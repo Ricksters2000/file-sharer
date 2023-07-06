@@ -13,6 +13,7 @@ import { env } from './serverEnv';
 import {isProduction} from '../utils/isProduction';
 import serveStatic from 'serve-static';
 import {UploadType, uploadType} from '../assetManagement/uploadFileSettings';
+import {UploadProgressManager} from '../assetManagement/UploadProgressManager';
 
 if (!fs.existsSync(fsPaths.tempUploadedAssets)) {
   fs.mkdirSync(fsPaths.tempUploadedAssets, {recursive: true});
@@ -47,6 +48,7 @@ const createServer = async () => {
   //   console.log(`total:`, total / divide)
   // }, 1000)
 
+  const uploadProgressManager = new UploadProgressManager()
   const app = express();
   let viteServer: ViteDevServer | undefined
   if (!isProduction) {
@@ -67,7 +69,7 @@ const createServer = async () => {
     await setupLocalS3(app);
   }
 
-  app.post(`/api/upload`, handleUploadFile)
+  app.post(`/api/upload`, handleUploadFile(uploadProgressManager))
   app.get(`/api/download/:filename`, handleDownloadFile)
   app.get(`/api/progress`, async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream')

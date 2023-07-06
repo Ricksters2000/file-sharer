@@ -21,6 +21,10 @@ export class UploadProgressManager {
     form.on(`progress`, (bytesReceived, bytesExpected) => {
       this.setProgress(fileId, bytesReceived, bytesExpected)
     })
+    form.on(`file`, (formName, file) => {
+      console.log(`file completed:`, file.newFilename)
+      this.removeProgress(file.newFilename)
+    })
   }
 
   private setProgress(fileId: string, currentProgress: number, maxProgress: number) {
@@ -28,5 +32,10 @@ export class UploadProgressManager {
       currentProgress,
       maxProgress,
     }
+  }
+
+  private removeProgress(fileId: string) {
+    const {[fileId]: fileProgress, ...rest} = this.fileProgresses
+    this.fileProgresses = {...rest}
   }
 }
