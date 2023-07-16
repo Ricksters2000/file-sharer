@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import React, { useCallback } from 'react';
 // @ts-ignore
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
+import {FileProgress} from '../../assetManagement/UploadProgressManager';
 
 type OnDropCallback = <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => void
 
@@ -10,24 +11,25 @@ export const Upload: React.FC<unknown> = () => {
   const [uploadProgress, setUploadProgress] = React.useState(``)
   const onDrop = useCallback<OnDropCallback>(async (acceptedFiles) =>  {
     console.log(acceptedFiles)
+    const id = `1`;
     const formData = new FormData();
-    formData.append(`files`, acceptedFiles[0])
+    formData.append(`files`, acceptedFiles[0]);
     console.log(`sending data`)
-    const res = await fetch(`/api/upload`, {
-      method: `post`,
-      // headers: {'content-type': `multipart/form-data`},
-      body: formData,
-    });
-    const progressEvent = new EventSource(`/api/progress`)
-    console.log(`created progress event:`, progressEvent)
+    const progressEvent = new EventSource(`/api/progress/${id}`)
     progressEvent.onmessage = (event) => {
-      console.log(`message:`, event.data)
-      const data = JSON.parse(event.data)
-      if (data.num >= 99) {
+      if (!event.data) return
+      const progress = JSON.parse(event.data) as FileProgress
+      console.log(`current progress:`, progress.currentProgress, progress.maxProgress)
+      if (progress.currentProgress >= progress.maxProgress) {
         console.log(`done`)
         progressEvent.close()
       }
     }
+    const res = await fetch(`/api/upload/${id}`, {
+      method: `post`,
+      // headers: {'content-type': `multipart/form-data`},
+      body: formData,
+    });
     const data = await res.text();
     setDownloadLink(data);
   }, [])

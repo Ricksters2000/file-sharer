@@ -6,8 +6,7 @@ import {uploadFileFromFs} from "./fs/uploadFileFromFs";
 import {UploadProgressManager} from "./UploadProgressManager";
 import IncomingForm from "formidable/Formidable";
 
-export const uploadFile = (uploadProgressManager: UploadProgressManager, form: IncomingForm) => (file: VolatileFileAndData): Writable => {
-  uploadProgressManager.startProgress(form, file.newFilename)
+export const uploadFile = (file: VolatileFileAndData): Writable => {
   if (uploadType === UploadType.s3) {
     return multipartUploadS3ObjectSync(file)
   } else if (uploadType === UploadType.fs) {

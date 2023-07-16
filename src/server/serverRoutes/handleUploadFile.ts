@@ -13,8 +13,9 @@ export const handleUploadFile = (uploadProgressManager: UploadProgressManager) =
     maxTotalFileSize: Infinity,
     uploadDir: fsPaths.tempUploadedAssets,
     // @ts-ignore
-    fileWriteStreamHandler: uploadFile(uploadProgressManager, this),
+    fileWriteStreamHandler: uploadFile,
   });
+  uploadProgressManager.startProgress(form, req.params.id);
   form.parse(req, async (err, fields, formidableFile) => {
     if (err) {
       console.log(`err:`, err)
@@ -32,7 +33,7 @@ export const handleUploadFile = (uploadProgressManager: UploadProgressManager) =
       // res.send(`/api/download/`);
     }
   })
-  form.on(`progress`, (bytesReceived, bytesExpected) => {
-    console.log(`progress on file upload: ${bytesReceived}/${bytesExpected}`)
-  })
+  // form.on(`progress`, (bytesReceived, bytesExpected) => {
+  //   console.log(`progress on file upload: ${bytesReceived}/${bytesExpected}`)
+  // })
 }

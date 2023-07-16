@@ -69,17 +69,13 @@ const createServer = async () => {
     await setupLocalS3(app);
   }
 
-  app.post(`/api/upload`, handleUploadFile(uploadProgressManager))
+  app.post(`/api/upload/:id`, handleUploadFile(uploadProgressManager))
   app.get(`/api/download/:filename`, handleDownloadFile)
-  app.get(`/api/progress`, async (req, res) => {
+  app.get(`/api/progress/:id`, async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
     res.flushHeaders()
-    for (let i = 0; i < 100; i++) {
-      // res.write("event: message\n");
-      res.write(`data: ${JSON.stringify({num: i})}\n\n`)
-    }
-    console.log(`ended thing`)
+    res.write(`data: ${JSON.stringify(uploadProgressManager.getFileProgress(req.params.id))}\n\n`)
     res.end()
   })
 

@@ -1,9 +1,6 @@
-import {Request} from "express";
-import formidable from "formidable";
-import {fsPaths} from "../fsPaths";
 import IncomingForm from "formidable/Formidable";
 
-type FileProgress = {
+export type FileProgress = {
   currentProgress: number;
   maxProgress: number;
 }
@@ -17,13 +14,12 @@ export class UploadProgressManager {
 
   public getFileProgress = (fileId: string) => this.fileProgresses[fileId]
 
-  public async startProgress(form: IncomingForm, fileId: string) {
+  public async startProgress(form: IncomingForm, id: string) {
     form.on(`progress`, (bytesReceived, bytesExpected) => {
-      this.setProgress(fileId, bytesReceived, bytesExpected)
+      this.setProgress(id, bytesReceived, bytesExpected)
     })
     form.on(`file`, (formName, file) => {
-      console.log(`file completed:`, file.newFilename)
-      this.removeProgress(file.newFilename)
+      this.removeProgress(id)
     })
   }
 
