@@ -1,4 +1,5 @@
 import IncomingForm from "formidable/Formidable";
+import {logMemory} from "../utils/logMemory";
 
 export type FileProgress = {
   currentProgress: number;
@@ -24,6 +25,7 @@ export class UploadProgressManager {
   }
 
   private setProgress(fileId: string, currentProgress: number, maxProgress: number) {
+    logMemory()
     this.fileProgresses[fileId] = {
       currentProgress,
       maxProgress,

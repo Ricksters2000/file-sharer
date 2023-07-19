@@ -4,6 +4,7 @@ import { MultipartParser } from "formidable/parsers";
 import { fsPaths } from "../../fsPaths";
 import {uploadFile} from "../../assetManagement/uploadFile";
 import {UploadProgressManager} from "../../assetManagement/UploadProgressManager";
+import {logMemory} from "../../utils/logMemory";
 
 export const handleUploadFile = (uploadProgressManager: UploadProgressManager) => async (req: Request, res: Response) => {
   console.log(`got request to upload file`)
@@ -24,6 +25,7 @@ export const handleUploadFile = (uploadProgressManager: UploadProgressManager) =
     const {files} = formidableFile;
     // console.log(`formidable:`, formidableFile)
     console.log(`fields:`, fields);
+    logMemory()
     // console.log(`files:`, files);
     if (Array.isArray(files)) {
       
