@@ -3,6 +3,6 @@ import {downloadFile} from "../../assetManagement/downloadFile";
 
 export const handleDownloadFile = async  (req: Request, res: Response) => {
   console.log(`params:`, req.params, req.query)
-  downloadFile(res, req.params.filename)
+  await downloadFile(res, req.params.filename)
   res.end();
 }
