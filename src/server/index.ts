@@ -15,6 +15,7 @@ import serveStatic from 'serve-static';
 import {UploadType, uploadType} from '../assetManagement/uploadFileSettings';
 import {UploadProgressManager} from '../assetManagement/UploadProgressManager';
 import {logMemory} from '../utils/logMemory';
+import {ProgressStatus, ProgressStatusAction} from '../assetManagement/types';
 
 if (!fs.existsSync(fsPaths.tempUploadedAssets)) {
   fs.mkdirSync(fsPaths.tempUploadedAssets, {recursive: true});
@@ -64,7 +65,26 @@ const createServer = async () => {
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
     res.flushHeaders()
-    res.write(`data: ${JSON.stringify(uploadProgressManager.getFileProgress(req.params.id))}\n\n`)
+    let data: ProgressStatusAction = {
+      type: ProgressStatus.UNKNOWN,
+      data: {}
+    }
+    const fileProgress = uploadProgressManager.getFileProgress(req.params.id)
+    if (!fileProgress) {
+      if (uploadProgressManager.isProgressCompleted(req.params.id)) {
+        data = {
+          type: ProgressStatus.COMPLETED,
+          data: {}
+        }
+      }
+    } else {
+      data = {
+        type: ProgressStatus.ONGOING,
+        data: fileProgress
+      }
+    }
+    console.log(`sending progress update:`, data)
+    res.write(`data: ${JSON.stringify(data)}\n\n`)
     res.end()
   })
 

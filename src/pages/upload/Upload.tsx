@@ -1,49 +1,36 @@
 import styled from '@emotion/styled';
 import React, { useCallback } from 'react';
+import UploadIcon from '@mui/icons-material/Upload';
 // @ts-ignore
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
 import {FileProgress} from '../../assetManagement/UploadProgressManager';
+import {UploadedFile} from './UploadedFile';
 
 type OnDropCallback = <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => void
-
 export const Upload: React.FC<unknown> = () => {
   const [downloadLink, setDownloadLink] = React.useState(``)
-  const [uploadProgress, setUploadProgress] = React.useState(``)
+  const [uploadedFiles, setUploadedFiles] = React.useState<Array<Blob>>([])
   const onDrop = useCallback<OnDropCallback>(async (acceptedFiles) =>  {
     console.log(acceptedFiles)
-    const id = `1`;
-    const formData = new FormData();
-    formData.append(`files`, acceptedFiles[0]);
-    console.log(`sending data`)
-    const progressEvent = new EventSource(`/api/progress/${id}`)
-    progressEvent.onmessage = (event) => {
-      if (!event.data) return
-      const progress = JSON.parse(event.data) as FileProgress
-      console.log(`current progress:`, progress.currentProgress, progress.maxProgress)
-      if (progress.currentProgress >= progress.maxProgress) {
-        console.log(`done`)
-        progressEvent.close()
-      }
-    }
-    const res = await fetch(`/api/upload/${id}`, {
-      method: `post`,
-      // headers: {'content-type': `multipart/form-data`},
-      body: formData,
-    });
-    const data = await res.text();
-    setDownloadLink(data);
+    setUploadedFiles(acceptedFiles)
   }, [])
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
   return (
     <>
     <DropZoneDiv {...getRootProps()}>
       <input {...getInputProps()}/>
-      {
-        isDragActive ?
-          <p>Drop the files here ...</p> :
-          <p>Drag 'n' drop some files here, or click to select files</p>
-      }
+      <StyledUploadIcon/>
+      <ProgressContainer>
+        {
+          isDragActive ?
+            <p>Drop the files here ...</p> :
+            <p>Drag 'n' drop some files here, or click to select files</p>
+        }
+      </ProgressContainer>
     </DropZoneDiv>
+    {uploadedFiles.map((uploadedFile, i) =>
+      <UploadedFile key={`${uploadedFile.name}-${i}`} localFile={uploadedFile}/>
+    )}
     {downloadLink && <a href={downloadLink}>Download</a>}
     <h2>With Node.js <code>"http"</code> module</h2>
     <form action="/api/upload" encType="multipart/form-data" method="post">
@@ -55,22 +42,37 @@ export const Upload: React.FC<unknown> = () => {
   )
 }
 
-const DropZoneDiv = styled(`div`)`
-  padding: 0.6em;
-  box-sizing: border-box;
-  font-family: sans-serif;
-  border: 3px dashed #e0e0e0;
-  user-select: none;
-  margin: 0.33em auto;
-  max-width: 320px;
-  transition: 0.3s;
-  cursor: pointer;
-  text-align: center;
-  font-size: 20px;
-  line-height: 1.4;
-  color: #4b4b4b;
-  &:hover {
-    border-color: black;
-    color: black;
-  }
-`;
+const StyledUploadIcon = styled.svg({
+  margin: `0 8px`,
+  height: `100%`,
+  borderRight: `3px dashed #e0e0e0`,
+  borderColor: `inherit`,
+  paddingRight: `8px`,
+}).withComponent(UploadIcon);
+
+const DropZoneDiv = styled.div({
+  display: `flex`,
+  height: `50px`,
+  padding: 0,
+  alignItems: `center`,
+  boxSizing: `border-box`,
+  fontFamily: `sans-serif`,
+  border: `3px dashed #e0e0e0`,
+  userSelect: `none`,
+  margin: `0.33em auto`,
+  transition: `0.3s`,
+  cursor: `pointer`,
+  textAlign: `center`,
+  fontSize: `20px`,
+  lineHeight: `1.4`,
+  color: `#4b4b4b`,
+  ":hover": {
+    borderColor: `black`,
+    color: `black`,
+  },
+});
+
+const ProgressContainer = styled.div({
+  display: `flex`,
+  flexDirection: `column`,
+})
