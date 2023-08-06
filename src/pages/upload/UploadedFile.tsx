@@ -1,10 +1,10 @@
 import React from 'react';
 import {FileProgress} from '../../assetManagement/UploadProgressManager';
 import styled from '@emotion/styled';
-import FileIcon from '@mui/icons-material/FilePresent'
 import {LinearProgress} from '@mui/material';
 import {generateRandomNumber} from '../../utils/generateRandomNumber';
 import {ProgressStatus, ProgressStatusAction} from '../../assetManagement/types';
+import FileIcon from '../../assets/file-icon.svg';
 
 export type FileProgressWithData = {
   fileProgress: FileProgress;
@@ -79,7 +79,7 @@ export const UploadedFile: React.FC<Props> = (props) => {
   }, [])
   return (
     <Root>
-      <StyledFileIcon/>
+      <StyledFileIcon src={FileIcon}/>
       <ProgressContainer>
         <TextContainer>
           <FilenameContainer>
@@ -120,8 +120,8 @@ const FilenameContainer = styled.span({
 const Text = styled.span({
 })
 
-const StyledFileIcon = styled.svg({
+const StyledFileIcon = styled(`img`)({
   height: '40px',
   width: '40px',
   marginRight: '8px',
-}).withComponent(FileIcon)
+})

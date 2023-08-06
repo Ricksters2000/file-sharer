@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 import React, { useCallback } from 'react';
-import UploadIcon from '@mui/icons-material/Upload';
 // @ts-ignore
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
 import {FileProgress} from '../../assetManagement/UploadProgressManager';
 import {UploadedFile} from './UploadedFile';
+import UploadIcon from '../../assets/upload-icon.svg';
 
 type OnDropCallback = <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => void
 export const Upload: React.FC<unknown> = () => {
@@ -19,7 +19,7 @@ export const Upload: React.FC<unknown> = () => {
     <>
     <DropZoneDiv {...getRootProps()}>
       <input {...getInputProps()}/>
-      <StyledUploadIcon/>
+      <StyledUploadIcon src={UploadIcon}/>
       <ProgressContainer>
         {
           isDragActive ?
@@ -42,13 +42,14 @@ export const Upload: React.FC<unknown> = () => {
   )
 }
 
-const StyledUploadIcon = styled.svg({
+const StyledUploadIcon = styled(`img`)({
   margin: `0 8px`,
   height: `100%`,
+  width: `25px`,
   borderRight: `3px dashed #e0e0e0`,
   borderColor: `inherit`,
   paddingRight: `8px`,
-}).withComponent(UploadIcon);
+});
 
 const DropZoneDiv = styled.div({
   display: `flex`,
@@ -75,4 +76,4 @@ const DropZoneDiv = styled.div({
 const ProgressContainer = styled.div({
   display: `flex`,
   flexDirection: `column`,
-})
+});
