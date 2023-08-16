@@ -1,66 +1,72 @@
 import styled from '@emotion/styled';
-import React, { useCallback } from 'react';
+import React, {useCallback} from 'react';
 // @ts-ignore
-import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
-import {FileProgress} from '../../assetManagement/UploadProgressManager';
+import {DropEvent, FileRejection, useDropzone} from 'react-dropzone';
 import {UploadedFile} from './UploadedFile';
 import UploadIcon from '../../assets/upload-icon.svg';
 
 type OnDropCallback = <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => void
 export const Upload: React.FC<unknown> = () => {
-  const [downloadLink, setDownloadLink] = React.useState(``)
   const [uploadedFiles, setUploadedFiles] = React.useState<Array<Blob>>([])
   const onDrop = useCallback<OnDropCallback>(async (acceptedFiles) =>  {
     console.log(acceptedFiles)
-    setUploadedFiles(acceptedFiles)
+    setUploadedFiles(prev => [...prev, ...acceptedFiles])
   }, [])
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
   return (
-    <>
-    <DropZoneDiv {...getRootProps()}>
-      <input {...getInputProps()}/>
-      <StyledUploadIcon src={UploadIcon}/>
-      <ProgressContainer>
-        {
-          isDragActive ?
-            <p>Drop the files here ...</p> :
-            <p>Drag 'n' drop some files here, or click to select files</p>
-        }
-      </ProgressContainer>
-    </DropZoneDiv>
-    {uploadedFiles.map((uploadedFile, i) =>
-      <UploadedFile key={`${uploadedFile.name}-${i}`} localFile={uploadedFile}/>
-    )}
-    {downloadLink && <a href={downloadLink}>Download</a>}
-    <h2>With Node.js <code>"http"</code> module</h2>
-    <form action="/api/upload" encType="multipart/form-data" method="post">
-      <div>Text field title: <input type="text" name="title" /></div>
-      <div>File: <input type="file" name="multipleFiles" multiple={true} /></div>
-      <input type="submit" value="Upload" />
-    </form>
-    </>
+    <Root>
+      <DropZoneDiv {...getRootProps()}>
+        <input {...getInputProps()}/>
+        <StyledUploadIcon src={UploadIcon}/>
+        <DropZoneTextContainer>
+          {
+            isDragActive ?
+              <p>Drop the files here ...</p> :
+              <p>Drag 'n' drop some files here, or click to select files</p>
+          }
+        </DropZoneTextContainer>
+      </DropZoneDiv>
+      <UploadedFilesContainer>
+        <Heading>Uploaded Files</Heading>
+        {uploadedFiles.map((uploadedFile, i) =>
+          <UploadedFile key={`${uploadedFile.name}-${i}`} localFile={uploadedFile}/>
+        )}
+      </UploadedFilesContainer>
+    </Root>
   )
 }
 
-const StyledUploadIcon = styled(`img`)({
+const Root = styled.div({
+  display: `flex`,
+  flexDirection: `row`,
+  gap: `40px`,
+})
+
+const UploadedFilesContainer = styled.div({
+  display: `flex`,
+  flexDirection: `column`,
+  gap: `10px`,
+  flex: `50%`
+})
+
+const StyledUploadIcon = styled.img({
   margin: `0 8px`,
-  height: `100%`,
-  width: `25px`,
-  borderRight: `3px dashed #e0e0e0`,
-  borderColor: `inherit`,
-  paddingRight: `8px`,
+  height: `20%`,
 });
 
 const DropZoneDiv = styled.div({
   display: `flex`,
-  height: `50px`,
+  flex: `50%`,
+  height: `50vh`,
   padding: 0,
   alignItems: `center`,
+  justifyContent: `center`,
+  flexDirection: `column`,
   boxSizing: `border-box`,
   fontFamily: `sans-serif`,
   border: `3px dashed #e0e0e0`,
+  borderRadius: `15px`,
   userSelect: `none`,
-  margin: `0.33em auto`,
   transition: `0.3s`,
   cursor: `pointer`,
   textAlign: `center`,
@@ -73,7 +79,12 @@ const DropZoneDiv = styled.div({
   },
 });
 
-const ProgressContainer = styled.div({
+const DropZoneTextContainer = styled.div({
   display: `flex`,
   flexDirection: `column`,
 });
+
+const Heading = styled.h3({
+  margin: 0,
+  marginBottom: `10px`,
+})

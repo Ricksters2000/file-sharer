@@ -16,6 +16,8 @@ import {UploadType, uploadType} from '../assetManagement/uploadFileSettings';
 import {UploadProgressManager} from '../assetManagement/UploadProgressManager';
 import {logMemory} from '../utils/logMemory';
 import {ProgressStatus, ProgressStatusAction} from '../assetManagement/types';
+import {handleCancelUpload} from './serverRoutes/handleCancelUpload';
+import bodyParser from 'body-parser';
 
 if (!fs.existsSync(fsPaths.tempUploadedAssets)) {
   fs.mkdirSync(fsPaths.tempUploadedAssets, {recursive: true});
@@ -60,6 +62,7 @@ const createServer = async () => {
   }
 
   app.post(`/api/upload/:id`, handleUploadFile(uploadProgressManager))
+  app.put(`/api/cancel/:id`, handleCancelUpload(uploadProgressManager))
   app.get(`/api/download/:filename`, handleDownloadFile)
   app.get(`/api/progress/:id`, async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream')
@@ -83,7 +86,7 @@ const createServer = async () => {
         data: fileProgress
       }
     }
-    console.log(`sending progress update:`, data)
+    // console.log(`sending progress update:`, data)
     res.write(`data: ${JSON.stringify(data)}\n\n`)
     res.end()
   })

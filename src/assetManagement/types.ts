@@ -15,10 +15,11 @@ export enum ProgressStatus {
   UNKNOWN,
   COMPLETED,
   ONGOING,
+  CANCELED,
 }
 
 export type ProgressStatusAction = {
-  type: ProgressStatus.UNKNOWN | ProgressStatus.COMPLETED;
+  type: ProgressStatus.UNKNOWN | ProgressStatus.COMPLETED | ProgressStatus.CANCELED;
   data: {};
 } | {
   type: ProgressStatus.ONGOING;

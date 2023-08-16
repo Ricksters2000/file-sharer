@@ -5,9 +5,9 @@ import { App } from '../pages/home/App'
 import { bodyId } from '../elementIds'
 
 ReactDOM.hydrateRoot(document.getElementById(bodyId) as HTMLElement,
-  <React.StrictMode>
+  // <React.StrictMode>
     <BrowserRouter>
       <App/>
     </BrowserRouter>
-  </React.StrictMode>
+  // </React.StrictMode>
 )

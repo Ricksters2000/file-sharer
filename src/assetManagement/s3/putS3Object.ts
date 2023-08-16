@@ -64,9 +64,8 @@ export const multipartUploadS3Object = async (buffer: Buffer, key: string) => {
   }
 }
 
-export const multipartUploadS3ObjectSync = (file?: VolatileFileAndData) => {
+export const multipartUploadS3ObjectSync = (pass: PassThrough, file?: VolatileFileAndData) => {
   try {
-    const pass = new PassThrough();
     if (!file) return pass;
     console.log(`receieved file:`, file);
     const key: string = file.newFilename

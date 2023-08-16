@@ -6,12 +6,8 @@ import { Upload } from '../upload/Upload';
 
 export const App: React.FC<unknown> = () => {
   return (
-    <>
-      <Navigation/>
-      <Routes>
-        <Route path='/' element={<DummyApp/>} />
-        <Route path='/upload' element={<Upload/>} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path='/' element={<Upload/>}/>
+    </Routes>
   )
 }
