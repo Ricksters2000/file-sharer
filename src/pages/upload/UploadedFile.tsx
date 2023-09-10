@@ -5,6 +5,8 @@ import {LinearProgress} from '@mui/material';
 import {generateRandomNumber} from '../../utils/generateRandomNumber';
 import {ProgressStatus, ProgressStatusAction} from '../../assetManagement/types';
 import FileIcon from '../../assets/file-icon.svg';
+import {UploadResponse} from '../../utils/UploadResponse';
+import {red} from '@mui/material/colors';
 
 export type FileProgressWithData = {
   fileProgress: FileProgress;
@@ -24,6 +26,7 @@ export const UploadedFile: React.FC<Props> = (props) => {
   const [progressStatus, setProgressStatus] = React.useState<ProgressStatus>(ProgressStatus.UNKNOWN);
   const [id, setId] = React.useState(-1);
   const [downloadLink, setDownloadLink] = React.useState(``);
+  const [error, setError] = React.useState<string | null>(null);
   const filename = localFile.name;
   let currentProgress: number | undefined
   if (progressStatus === ProgressStatus.ONGOING) {
@@ -32,54 +35,59 @@ export const UploadedFile: React.FC<Props> = (props) => {
     currentProgress = 100
   }
 
-  React.useEffect(() => {
-    (async () => {
-      const generatedId = generateRandomNumber();
-      setId(generatedId);
-      const formData = new FormData();
-      formData.append(`files`, localFile);
-      const progressEvent = new EventSource(`/api/progress/${generatedId}`)
-      progressEvent.onmessage = (event) => {
-        if (!event.data) {
-          console.warn(`Data is undefined from progress event:`, event)
-          return
-        }
-        if (progressStatus === ProgressStatus.CANCELED) {
-          progressEvent.close()
-          return
-        }
-        const progressStatusAction = JSON.parse(event.data) as ProgressStatusAction
-        // console.log(`data:`, progressStatusAction)
-        setProgressStatus(prev => {
-          if (prev === progressStatusAction.type) return prev
-          return progressStatusAction.type
-        })
-        if (progressStatusAction.type === ProgressStatus.COMPLETED) {
-          setUploadProgress(maxProgress)
-          progressEvent.close()
-          return
-        }
-        if (progressStatusAction.type !== ProgressStatus.ONGOING) {
-          console.warn(`Progress status action type is undefined or unexpected value:`, progressStatusAction)
-          return
-        }
-        const progress = progressStatusAction.data
-        if (maxProgress === -1) {
-          setMaxProgress(progress.maxProgress)
-        }
-        setUploadProgress(progress.currentProgress)
-        if (progress.currentProgress >= progress.maxProgress) {
-          console.log(`done`)
-          progressEvent.close()
-        }
+  const uploadFile = async () => {
+    const generatedId = generateRandomNumber();
+    setId(generatedId);
+    const formData = new FormData();
+    formData.append(`files`, localFile);
+    const progressEvent = new EventSource(`/api/progress/${generatedId}`)
+    progressEvent.onmessage = (event) => {
+      if (!event.data) {
+        return
       }
-      const res = await fetch(`/api/upload/${generatedId}`, {
-        method: `post`,
-        body: formData,
-      });
-      const data = await res.text();
-      setDownloadLink(data);
-    })()
+      if (progressStatus === ProgressStatus.CANCELED) {
+        progressEvent.close()
+        return
+      }
+      const progressStatusAction = JSON.parse(event.data) as ProgressStatusAction
+      setProgressStatus(prev => {
+        if (prev === progressStatusAction.type) return prev
+        return progressStatusAction.type
+      })
+      if (progressStatusAction.type === ProgressStatus.COMPLETED) {
+        setUploadProgress(maxProgress)
+        progressEvent.close()
+        return
+      }
+      if (progressStatusAction.type !== ProgressStatus.ONGOING) {
+        throw new Error(`Progress status action type is undefined or unexpected value: ${progressStatusAction}`)
+      }
+      const progress = progressStatusAction.data
+      if (maxProgress === -1) {
+        setMaxProgress(progress.maxProgress)
+      }
+      setUploadProgress(progress.currentProgress)
+      if (progress.currentProgress >= progress.maxProgress) {
+        console.log(`done`)
+        progressEvent.close()
+      }
+    }
+    const res = await fetch(`/api/upload/${generatedId}`, {
+      method: `post`,
+      body: formData,
+    });
+    const data = await res.json() as UploadResponse;
+    if (data.type === `error`) {
+      console.log(`error uploading file:`, data)
+      setError(data.error);
+      setProgressStatus(ProgressStatus.CANCELED);
+    } else {
+      setDownloadLink(data.uploadPath);
+    }
+  }
+
+  React.useEffect(() => {
+    uploadFile()
   }, [])
 
   const cancelUpload = async () => {
@@ -89,6 +97,7 @@ export const UploadedFile: React.FC<Props> = (props) => {
         method: `put`,
       })
       setProgressStatus(ProgressStatus.CANCELED)
+      setError(`Canceled`)
     } catch (err) {
       console.warn(`Error canceling upload: ${err}`)
     }
@@ -102,7 +111,8 @@ export const UploadedFile: React.FC<Props> = (props) => {
           <TextContainer>
             <FilenameContainer>
               <Text>{filename}</Text>
-              {currentProgress && <Text>({currentProgress}%)</Text>}
+              {!error && currentProgress && <Text>({currentProgress}%)</Text>}
+              {error && <ErrorText>- {error}</ErrorText>}
             </FilenameContainer>
             {progressStatus === ProgressStatus.COMPLETED ?
               <Text style={{color: `#2fbf96`}}>Completed</Text>
@@ -110,7 +120,9 @@ export const UploadedFile: React.FC<Props> = (props) => {
               <CancelText onClick={cancelUpload}>Cancel</CancelText>
             }
           </TextContainer>
-          <ProgressBar color='inherit' variant={progressStatus === ProgressStatus.UNKNOWN ? `indeterminate` : `determinate`} value={currentProgress}/>
+          <ProgressBar color={error ? `error` : `inherit`} 
+                       variant={progressStatus === ProgressStatus.UNKNOWN ? `indeterminate` : `determinate`} 
+                       value={currentProgress}/>
         </ProgressContainer>
       </Container>
     </Root>
@@ -159,6 +171,10 @@ const CancelText = styled(Text)({
   ':hover': {
     cursor: `pointer`,
   }
+})
+
+const ErrorText = styled(Text)({
+  color: red.A400,
 })
 
 const StyledFileIcon = styled.img({

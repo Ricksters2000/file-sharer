@@ -4,12 +4,12 @@ import { fsPaths } from "../../fsPaths";
 import {uploadFile} from "../../assetManagement/uploadFile";
 import {UploadProgressManager} from "../../assetManagement/UploadProgressManager";
 import {logMemory} from "../../utils/logMemory";
+import {UploadResponse} from "../../utils/UploadResponse";
+import {formatFormidableError} from "../../utils/formatFormidableError";
 
 export const handleUploadFile = (uploadProgressManager: UploadProgressManager) => async (req: Request, res: Response) => {
-  console.log(`got request to upload file`)
   const form = formidable({
-    maxFileSize: Infinity,
-    maxTotalFileSize: Infinity,
+    maxFileSize: 1024 * 1024 * 50,
     uploadDir: fsPaths.tempUploadedAssets,
     // @ts-ignore
     fileWriteStreamHandler: uploadFile(req.params.id, uploadProgressManager),
@@ -17,8 +17,13 @@ export const handleUploadFile = (uploadProgressManager: UploadProgressManager) =
   uploadProgressManager.startProgress(form, req.params.id);
   form.parse(req, async (err, fields, formidableFile) => {
     if (err) {
-      console.log(`err:`, err)
-      res.status(404).send(`Error uploading file: ${err}`);
+      console.log(`err:`, err.toString())
+      const data: UploadResponse = {
+        type: `error`,
+        error: formatFormidableError(err),
+      }
+      res.json(data);
+      return
     }
     const {files} = formidableFile;
     console.log(`files: ${files}`)
@@ -28,10 +33,14 @@ export const handleUploadFile = (uploadProgressManager: UploadProgressManager) =
     }
     console.log(`fields:`, fields);
     logMemory()
-    if (Array.isArray(files)) {
-      
+    if (!Array.isArray(files)) {
+      const data: UploadResponse = {
+        type: `completed`,
+        uploadPath: files.newFilename,
+      }
+      res.json(data)
     } else {
-      res.send(`/api/download/${files.newFilename}`);
+      // res.send(`/api/download/${files.newFilename}`);
     }
   })
 }
