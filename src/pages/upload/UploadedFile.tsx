@@ -1,12 +1,14 @@
 import React from 'react';
+// @ts-ignore
+import clipboard from 'clipboardy'
 import {FileProgress} from '../../assetManagement/UploadProgressManager';
 import styled from '@emotion/styled';
-import {LinearProgress} from '@mui/material';
+import {IconButton, LinearProgress, Tooltip} from '@mui/material';
 import {generateRandomNumber} from '../../utils/generateRandomNumber';
 import {ProgressStatus, ProgressStatusAction} from '../../assetManagement/types';
 import FileIcon from '../../assets/file-icon.svg';
+import ShareIcon from '../../assets/share-icon.svg';
 import {UploadResponse} from '../../utils/UploadResponse';
-import {red} from '@mui/material/colors';
 
 export type FileProgressWithData = {
   fileProgress: FileProgress;
@@ -26,6 +28,7 @@ export const UploadedFile: React.FC<Props> = (props) => {
   const [progressStatus, setProgressStatus] = React.useState<ProgressStatus>(ProgressStatus.UNKNOWN);
   const [id, setId] = React.useState(-1);
   const [downloadLink, setDownloadLink] = React.useState(``);
+  const [linkCopied, setLinkCopied] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const filename = localFile.name;
   let currentProgress: number | undefined
@@ -103,25 +106,47 @@ export const UploadedFile: React.FC<Props> = (props) => {
     }
   }
 
+  const copyDownloadLink = async (evt: React.MouseEvent<HTMLButtonElement>) => {
+    try {
+      if (!window.isSecureContext) {
+        alert(`Can't copy to clipboard in insecure context`)
+        return;
+      }
+      await clipboard.write(`${location.href}api/download/${downloadLink}`);
+      setLinkCopied(true);
+    } catch (err) {
+      setLinkCopied(false);
+    }
+  }
+
   return (
     <Root>
       <Container>
         <StyledFileIcon src={FileIcon}/>
         <ProgressContainer>
           <TextContainer>
-            <FilenameContainer>
+            <FileInfoContainer>
               <Text>{filename}</Text>
               {!error && currentProgress && <Text>({currentProgress}%)</Text>}
               {error && <ErrorText>- {error}</ErrorText>}
-            </FilenameContainer>
-            {progressStatus === ProgressStatus.COMPLETED ?
-              <Text style={{color: `#2fbf96`}}>Completed</Text>
-            :
-              <CancelText onClick={cancelUpload}>Cancel</CancelText>
-            }
+            </FileInfoContainer>
+            <FileInfoContainer style={{gap: `6px`}}>
+              {progressStatus === ProgressStatus.COMPLETED ?
+                <Text style={{color: `#2fbf96`}}>Completed</Text>
+              :
+                <CancelText onClick={cancelUpload}>Cancel</CancelText>
+              }
+              {progressStatus === ProgressStatus.COMPLETED && downloadLink &&
+                <Tooltip onClose={() => setLinkCopied(false)} title={linkCopied ? `Copied` : `Share`} placement='top' arrow>
+                  <IconButton style={{padding: 0}} onClick={copyDownloadLink}>
+                    <StyledShareIcon src={ShareIcon}/>
+                  </IconButton>
+                </Tooltip>
+              }
+            </FileInfoContainer>
           </TextContainer>
-          <ProgressBar color={error ? `error` : `inherit`} 
-                       variant={progressStatus === ProgressStatus.UNKNOWN ? `indeterminate` : `determinate`} 
+          <ProgressBar color={error ? `error` : `inherit`}
+                       variant={progressStatus === ProgressStatus.UNKNOWN ? `indeterminate` : `determinate`}
                        value={currentProgress}/>
         </ProgressContainer>
       </Container>
@@ -158,7 +183,7 @@ const TextContainer = styled.div({
   justifyContent: `space-between`,
 })
 
-const FilenameContainer = styled.span({
+const FileInfoContainer = styled.span({
   display: `inline-flex`,
   gap: `2px`,
   color: `#767676`,
@@ -174,11 +199,16 @@ const CancelText = styled(Text)({
 })
 
 const ErrorText = styled(Text)({
-  color: red.A400,
+  color: `#ff1744`,
 })
 
 const StyledFileIcon = styled.img({
   height: '40px',
   width: '40px',
   marginRight: '8px',
+})
+
+const StyledShareIcon = styled.img({
+  height: `20px`,
+  width: `20px`,
 })
