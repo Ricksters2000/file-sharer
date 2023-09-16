@@ -3,7 +3,7 @@ import React from 'react';
 import clipboard from 'clipboardy'
 import {FileProgress} from '../../assetManagement/UploadProgressManager';
 import styled from '@emotion/styled';
-import {IconButton, LinearProgress, Tooltip} from '@mui/material';
+import {Button, IconButton, LinearProgress, Tooltip} from '@mui/material';
 import {generateRandomNumber} from '../../utils/generateRandomNumber';
 import {ProgressStatus, ProgressStatusAction} from '../../assetManagement/types';
 import FileIcon from '../../assets/file-icon.svg';
@@ -48,11 +48,8 @@ export const UploadedFile: React.FC<Props> = (props) => {
       if (!event.data) {
         return
       }
-      if (progressStatus === ProgressStatus.CANCELED) {
-        progressEvent.close()
-        return
-      }
       const progressStatusAction = JSON.parse(event.data) as ProgressStatusAction
+      console.log(`received progress:`, progressStatusAction)
       setProgressStatus(prev => {
         if (prev === progressStatusAction.type) return prev
         return progressStatusAction.type
@@ -61,6 +58,14 @@ export const UploadedFile: React.FC<Props> = (props) => {
         setUploadProgress(maxProgress)
         progressEvent.close()
         return
+      }
+      if (progressStatusAction.type === ProgressStatus.CANCELED) {
+        setProgressStatus(ProgressStatus.CANCELED)
+        progressEvent.close()
+        return
+      }
+      if (progressStatusAction.type === ProgressStatus.UNKNOWN) {
+        return;
       }
       if (progressStatusAction.type !== ProgressStatus.ONGOING) {
         throw new Error(`Progress status action type is undefined or unexpected value: ${progressStatusAction}`)
@@ -87,6 +92,12 @@ export const UploadedFile: React.FC<Props> = (props) => {
     } else {
       setDownloadLink(data.uploadPath);
     }
+  }
+
+  const retryUpload = async () => {
+    setError(null);
+    setProgressStatus(ProgressStatus.UNKNOWN);
+    await uploadFile();
   }
 
   React.useEffect(() => {
@@ -132,9 +143,11 @@ export const UploadedFile: React.FC<Props> = (props) => {
             </FileInfoContainer>
             <FileInfoContainer style={{gap: `6px`}}>
               {progressStatus === ProgressStatus.COMPLETED ?
-                <Text style={{color: `#2fbf96`}}>Completed</Text>
+                <Button variant='text' size='small' color='success' sx={{pointerEvents: `none`}}>Completed</Button>
+              : progressStatus === ProgressStatus.CANCELED ?
+                <Button variant='text' size='small' color='error' onClick={retryUpload}>Retry</Button>
               :
-                <CancelText onClick={cancelUpload}>Cancel</CancelText>
+                <Button variant='text' size='small' color='error' onClick={cancelUpload}>Cancel</Button>
               }
               {progressStatus === ProgressStatus.COMPLETED && downloadLink &&
                 <Tooltip onClose={() => setLinkCopied(false)} title={linkCopied ? `Copied` : `Share`} placement='top' arrow>
@@ -190,12 +203,6 @@ const FileInfoContainer = styled.span({
 })
 
 const Text = styled.span({
-})
-
-const CancelText = styled(Text)({
-  ':hover': {
-    cursor: `pointer`,
-  }
 })
 
 const ErrorText = styled(Text)({

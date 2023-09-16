@@ -12,10 +12,10 @@ export type FileMetadata = {
 }
 
 export enum ProgressStatus {
-  UNKNOWN,
-  COMPLETED,
-  ONGOING,
-  CANCELED,
+  UNKNOWN = `UNKNOWN`,
+  COMPLETED = `COMPLETED`,
+  ONGOING = `ONGOING`,
+  CANCELED = `CANCELED`,
 }
 
 export type ProgressStatusAction = {

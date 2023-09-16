@@ -7,7 +7,7 @@ import {UploadProgressManager} from "./UploadProgressManager";
 import IncomingForm from "formidable/Formidable";
 
 export const uploadFile = (id: string, progressManager: UploadProgressManager) => (file: VolatileFileAndData): Writable => {
-  const pass = new PassThrough({emitClose: true})
+  const pass = new PassThrough({emitClose: false})
   progressManager.listenForProgressEnd(id, () => {
     console.log(`ending pass`)
     pass.emit(`close`)
