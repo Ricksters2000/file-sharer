@@ -13,6 +13,7 @@ export const uploadFileFromFs = (pass: PassThrough, file: VolatileFileAndData): 
       fs.rmSync(uploadedPath, {recursive: true})
     }
   }
+  let closed = false;
   const key = file.newFilename
   const uploadedPath = getUploadedFolderPath(key)
   fs.mkdirSync(uploadedPath)
@@ -21,6 +22,7 @@ export const uploadFileFromFs = (pass: PassThrough, file: VolatileFileAndData): 
   let currentPart = 1;
   pass.on(`close`, onClose);
   pass.on(`data`, async (chunk: Buffer) => {
+    if (closed) return;
     chunks.push(chunk);
     currentSize += chunk.byteLength;
     if (currentSize >= maxFileSize) {
@@ -36,7 +38,7 @@ export const uploadFileFromFs = (pass: PassThrough, file: VolatileFileAndData): 
     }
   })
   pass.on(`finish`, async () => {
-    pass.off(`close`, onClose)
+    if (closed) return;
     if (chunks.length > 0) {
       const buffer = Buffer.concat(chunks);
       fs.writeFileSync(path.resolve(uploadedPath, `./part-${currentPart}`), buffer)
@@ -48,6 +50,7 @@ export const uploadFileFromFs = (pass: PassThrough, file: VolatileFileAndData): 
       parts: currentPart,
     }
     fs.writeFileSync(getFileMetadataPath(key), JSON.stringify(fileMetadata))
+    console.log(`completed file upload`)
   })
   return pass;
 }

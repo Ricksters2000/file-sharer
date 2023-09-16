@@ -2,6 +2,7 @@ import IncomingForm from "formidable/Formidable";
 import {logMemory} from "../utils/logMemory";
 import {flushCompletedProgressesDelay} from "./uploadFileSettings";
 import {EventEmitter} from 'events';
+import {ProgressStatus} from "./types";
 
 export type FileProgress = {
   currentProgress: number;
@@ -9,7 +10,7 @@ export type FileProgress = {
 }
 
 export class UploadProgressManager {
-  private fileProgresses: Record<string, FileProgress>;
+  private fileProgresses: Record<string, FileProgress | ProgressStatus.CANCELED>;
   private completedProgresses: Record<string, Date>;
   private progressEvent: EventEmitter;
 
@@ -33,12 +34,13 @@ export class UploadProgressManager {
   }
 
   public listenForProgressEnd(id: string, cb: () => void) {
-    console.log(`listengin for progress end for id: ${id}`)
+    console.log(`listening for progress end on id: ${id}`)
     this.progressEvent.addListener(`progress_end_${id}`, cb)
   }
 
   public cancelUpload(id: string) {
     console.log(`emitting cancel event for id: ${id}`)
+    this.fileProgresses[id] = ProgressStatus.CANCELED;
     this.progressEvent.emit(`progress_end_${id}`)
   }
 
@@ -52,7 +54,6 @@ export class UploadProgressManager {
   }
 
   private markAsCompleted(fileId: string) {
-    this.progressEvent.emit(`progress_end_${fileId}`)
     const {[fileId]: fileProgress, ...rest} = this.fileProgresses
     this.fileProgresses = {...rest}
     this.completedProgresses = {

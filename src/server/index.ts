@@ -80,13 +80,17 @@ const createServer = async () => {
           data: {}
         }
       }
+    } else if (fileProgress === ProgressStatus.CANCELED) {
+      data = {
+        type: ProgressStatus.CANCELED,
+        data: {}
+      }
     } else {
       data = {
         type: ProgressStatus.ONGOING,
         data: fileProgress
       }
     }
-    // console.log(`sending progress update:`, data)
     res.write(`data: ${JSON.stringify(data)}\n\n`)
     res.end()
   })
