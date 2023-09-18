@@ -136,8 +136,8 @@ export const UploadedFile: React.FC<Props> = (props) => {
         <StyledFileIcon src={FileIcon}/>
         <ProgressContainer>
           <TextContainer>
-            <FileInfoContainer>
-              <Text>{filename}</Text>
+            <FileInfoContainer style={{width: `80%`}}>
+              <FilenameText>{filename}</FilenameText>
               {!error && currentProgress && <Text>({currentProgress}%)</Text>}
               {error && <ErrorText>- {error}</ErrorText>}
             </FileInfoContainer>
@@ -200,9 +200,15 @@ const FileInfoContainer = styled.span({
   display: `inline-flex`,
   gap: `2px`,
   color: `#767676`,
+  alignItems: `center`,
 })
 
 const Text = styled.span({
+})
+
+const FilenameText = styled(Text)({
+  overflow: `hidden`,
+  textOverflow: `ellipsis`,
 })
 
 const ErrorText = styled(Text)({

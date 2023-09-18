@@ -4,6 +4,7 @@ import React, {useCallback} from 'react';
 import {DropEvent, FileRejection, useDropzone} from 'react-dropzone';
 import {UploadedFile} from './UploadedFile';
 import FolderUploadIcon from '../../assets/folder-upload-icon.svg';
+import {mediauQueries} from '../../utils/mediaQueries';
 
 type OnDropCallback = <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => void
 export const Upload: React.FC<unknown> = () => {
@@ -61,6 +62,10 @@ const UploadContainer = styled.div({
   display: `flex`,
   flexDirection: `row`,
   gap: `40px`,
+  [mediauQueries.mediumAndBelow]: {
+    flexDirection: `column`,
+    gap: `20px`,
+  },
 })
 
 const UploadedFilesContainer = styled.div({
@@ -92,7 +97,6 @@ const DropZoneButton = styled.span({
 const DropZoneDiv = styled.div({
   display: `flex`,
   gap: `10px`,
-  flex: `50%`,
   height: `50vh`,
   padding: 0,
   alignItems: `center`,
@@ -116,7 +120,14 @@ const DropZoneDiv = styled.div({
   [`&:hover ${DropZoneButton}`]: {
     background: `#50b595`,
     color: `white`,
-  }
+  },
+  [mediauQueries.largest]: {
+    flex: `50%`,
+  },
+  [mediauQueries.mediumAndBelow]: {
+    height: `200px`,
+    padding: `16px`,
+  },
 });
 
 const DropZoneTextContainer = styled.div({
@@ -137,4 +148,7 @@ const ButtonWrapper = styled.div({
 const Heading = styled.h3({
   margin: 0,
   marginBottom: `10px`,
+  [mediauQueries.mediumAndBelow]: {
+    display: `none`,
+  },
 })
