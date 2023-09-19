@@ -97,7 +97,7 @@ const createServer = async () => {
 
   app.get(`*`, handleRouting(viteServer))
 
-  app.listen(env.PORT, () => {
+  app.listen(Number(env.PORT), `0.0.0.0`, () => {
     console.log(`app ready on port: ${env.PORT}`)
   });
 }
