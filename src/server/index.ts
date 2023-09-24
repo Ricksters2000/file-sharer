@@ -5,7 +5,7 @@ import {handleRouting} from './handleRouting';
 import {ViteDevServer, createServer as createViteServer} from 'vite';
 import { setupLocalS3 } from '../assetManagement/s3/setupLocalS3';
 import { handleUploadFile } from './serverRoutes/handleUploadFile';
-import { fsPaths } from '../fsPaths';
+import { fsPaths, root } from '../fsPaths';
 import { handleDownloadFile } from './serverRoutes/handleDownloadFile';
 import path from 'path';
 import { bucketName } from '../assetManagement/s3/s3Client';
@@ -45,10 +45,9 @@ const createServer = async () => {
   let viteServer: ViteDevServer | undefined
   if (!isProduction) {
     viteServer = await createViteServer({
+      root,
       server: {middlewareMode: true},
-      appType: `custom`,
-      mode: `development`,
-      configFile: fsPaths.clientConfigFile,
+      configFile: fsPaths.viteConfigFile,
     });
     app.use(viteServer.middlewares);
   } else {
@@ -97,7 +96,7 @@ const createServer = async () => {
 
   app.get(`*`, handleRouting(viteServer))
 
-  app.listen(Number(env.PORT), `0.0.0.0`, () => {
+  app.listen(env.PORT, () => {
     console.log(`app ready on port: ${env.PORT}`)
   });
 }

@@ -7,7 +7,7 @@ import FolderUploadIcon from '../../assets/folder-upload-icon.svg';
 import {mediauQueries} from '../../utils/mediaQueries';
 
 type OnDropCallback = <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => void
-export const Upload: React.FC<unknown> = () => {
+export const Upload: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = React.useState<Array<Blob>>([])
   const onDrop = useCallback<OnDropCallback>(async (acceptedFiles) =>  {
     console.log(acceptedFiles)

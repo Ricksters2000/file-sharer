@@ -3,7 +3,7 @@ import path from 'path'
 import {isProduction} from "./utils/isProduction";
 
 // const __filename = fileURLToPath(import.meta.url);
-const root = process.cwd();
+export const root = process.cwd();
 
 const uploadedAssetsFolder = path.resolve(root, `./.uploaded-assets/`);
 
@@ -13,6 +13,7 @@ export const fsPaths = {
   fsUploadedAssets: path.resolve(uploadedAssetsFolder, `./fs`),
   tempUploadedAssets: path.resolve(uploadedAssetsFolder, `./tmp`),
   clientConfigFile: path.resolve(root, `./build/client.config.ts`),
+  viteConfigFile: path.resolve(root, `./build/vite.config.ts`),
   envFile: path.resolve(root, `./.env`),
   templateHtmlFile: {
     dev: path.resolve(root, `./index.html`),
