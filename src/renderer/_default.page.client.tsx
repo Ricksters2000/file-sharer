@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {bodyId} from '../elementIds'
-import {Upload} from '../pages/upload/Upload'
 import {PageContextBuiltInClientWithServerRouting} from 'vite-plugin-ssr/types'
 
 export const render = async (pageContext: PageContextBuiltInClientWithServerRouting) => {
