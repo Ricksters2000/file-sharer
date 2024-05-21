@@ -26,7 +26,7 @@ npm run build-and-start
 
 ## Environment Variables
 
-Create a `.env.` file for storing these variables
+Create a `.env` file for storing these variables
 
 | Variable    | Default Value           | Description |
 | ----------- | ----------------------- | ----------- |
